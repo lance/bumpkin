@@ -18,7 +18,7 @@ Line
   = Expression / Comment
 
 Expression
-  = Integer / Conditional / Builtin / FunctionDef
+  = Integer / Conditional / Builtin / FunctionDef / FunctionCall
 
 Conditional
   = OpenParens WhiteSpace*
@@ -86,6 +86,17 @@ Minus
     }
   }
 
+FunctionCall
+  = symbol:Symbol params:ParameterList
+  {
+    log({FunctionCall: {symbol: symbol, params: params}});
+    return {
+      type: 'FunctionCall',
+      name: symbol,
+      params: params
+    }
+  }
+
 Symbol
   = WhiteSpace* symbol:$(SymbolChars+) WhiteSpace*
     {
@@ -107,14 +118,15 @@ DeclaredParameters
   }
 
 FunctionDef
- = name:Symbol parameters:DeclaredParameters Colon WhiteSpace* Expression
+ = name:Symbol parameters:DeclaredParameters Colon WhiteSpace* body:Expression
    {
      log({function: name});
      log({params: parameters});
      return {
        type: 'Function',
        name: name,
-       params: parameters
+       params: parameters,
+       body: body
      }
    }
 
@@ -135,7 +147,7 @@ Comment
       }
     }
 
-WhiteSpace     = w:[ \t] { log("WhiteSpace [" + w + "]"); }
+WhiteSpace     "whitespace" = w:[ \t] { log("WhiteSpace [" + w + "]"); }
 OpenParens     = "(" { log("OpenParens"); }
 CloseParens    = ")" { log("CloseParens"); }
 LeftBracket    = "[" { log("LeftBracket"); }

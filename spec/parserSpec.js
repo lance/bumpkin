@@ -80,6 +80,5 @@ describe("A bumpkin parser", function() {
     expect(result[0].type).toBe('Function');
     expect(result[0].name.value).toBe('=');
     expect(result[0].params.type).toBe('DeclaredParameters');
-    console.log(result);
   });
 });
