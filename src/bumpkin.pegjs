@@ -28,12 +28,14 @@ Conditional
     Else WhiteSpace*
     f:Expression
   {
-    return {
+    var c = {
       type: 'Conditional',
       expr: expr,
       t: t,
       f: f
     }
+    log(c);
+    return c;
   }
 
 Builtin = Print / Minus
@@ -54,7 +56,7 @@ ParameterList
 
 Parameter
   = WhiteSpace* 
-    value:(Symbol / Expression)
+    value:(Expression / Symbol)
     WhiteSpace*
   {
     log({Parameter: value});
@@ -120,20 +122,19 @@ DeclaredParameters
 FunctionDef
  = name:Symbol parameters:DeclaredParameters Colon WhiteSpace* body:Expression
    {
-     log({function: name});
-     log({params: parameters});
-     return {
+     var f = {
        type: 'Function',
        name: name,
        params: parameters,
        body: body
      }
+     log({FunctionDef: f});
+     return f;
    }
 
 Integer "integer"
   = digits:Digit+
     { 
-      log({Integer: parseInt(digits.join(""), 10)});
       return { type: 'Integer', value: parseInt(digits.join(""), 10) }
     }
 
@@ -147,7 +148,7 @@ Comment
       }
     }
 
-WhiteSpace     "whitespace" = w:[ \t] { log("WhiteSpace [" + w + "]"); }
+WhiteSpace     "whitespace" = w:[ \t]
 OpenParens     = "(" { log("OpenParens"); }
 CloseParens    = ")" { log("CloseParens"); }
 LeftBracket    = "[" { log("LeftBracket"); }
@@ -156,5 +157,5 @@ Else           = "|" { log("Else"); }
 Colon          = ":" { log("Colon"); }
 Digit          = [0-9]
 LineTerminator = [\n\r\u2028\u2029]
-SymbolChars    = [a-zA-Z\=]
+SymbolChars    = [a-zA-Z\=+*!]
 

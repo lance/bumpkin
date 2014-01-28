@@ -73,6 +73,28 @@ describe("A bumpkin parser", function() {
     expect(params.value[1].value.value).toBe(3);
   });
 
+  it("should parse expressions as function parameters", function() {
+    var program = '-[-[7 2] 3]';
+    var result = parser.parse(program);
+    var params = result[0].params;
+    expect(params.type).toBe('ParameterList');
+    expect(params.value.length).toBe(2);
+    expect(params.value[0].value.type).toBe('Builtin');
+    expect(params.value[0].value.name).toBe('minus');
+    expect(params.value[1].value.type).toBe('Integer');
+    expect(params.value[1].value.value).toBe(3);
+
+    program = 'print[-[7 2] 3]';
+    result = parser.parse(program);
+    params = result[0].params;
+    expect(params.type).toBe('ParameterList');
+    expect(params.value.length).toBe(2);
+    expect(params.value[0].value.type).toBe('Builtin');
+    expect(params.value[0].value.name).toBe('minus');
+    expect(params.value[1].value.type).toBe('Integer');
+    expect(params.value[1].value.value).toBe(3);
+  });
+
   it("should parse function defintions", function() {
     var program = '= x y: (-[x y]) 0 | 1';
     var result = parser.parse(program);
@@ -80,5 +102,27 @@ describe("A bumpkin parser", function() {
     expect(result[0].type).toBe('Function');
     expect(result[0].name.value).toBe('=');
     expect(result[0].params.type).toBe('DeclaredParameters');
+  });
+
+  it("should allow functions named '+'", function() {
+    var program = '+ a b: -[a -[0 b]]';
+    var result = parser.parse(program);
+    expect(result.length).toBe(1);
+    expect(result[0].type).toBe('Function');
+    expect(result[0].name.value).toBe('+');
+  });
+
+  it("should handle functions named '*'", function() {
+    var program = "* y: 100";
+    var result = parser.parse(program);
+    expect(result.length).toBe(1);
+    expect(result[0].type).toBe('Function');
+    expect(result[0].name.value).toBe('*');
+  });
+
+  it("should handle crazy nested shit", function() {
+    var program = "= x y: (-[x y]) 0 | 1\n+ a b: -[a -[0 b]]\n* a b: (=[b 0]) 0 | +[a *[a -[b 1]]]";
+    var result = parser.parse(program);
+    expect(result.length).toBe(3);
   });
 });

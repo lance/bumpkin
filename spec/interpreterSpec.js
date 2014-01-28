@@ -18,6 +18,11 @@ describe("A bumpkin interpreter", function() {
     expect(result[0]).toBe(-2);
   });
 
+  it("should eval the builtin minus function with subexpressions", function() {
+    var result = interp.evaluate('-[-[4 3] 3]');
+    expect(result[0]).toBe(-2);
+  });
+
   it("should evaluate true conditionals", function() {
     var result = interp.evaluate('(1) 1 | 0');
     expect(result[0]).toBe(1);
@@ -54,12 +59,13 @@ describe("A bumpkin interpreter", function() {
     expect(result[1]).toBe(50);
   });
 
-  it("should handle function definitions", function() {
-    var result = interp.evaluate("= x y: (-[x y]) 0 | 1\n=[3 3]\n=[1 2]");
-    expect(result[0]).toBe('=');
-    expect(result[1]).toBe(true);
-    expect(result[2]).toBe(false);
+  xit("should handle factorial", function() {
+    var program = "= x y: (-[x y]) 0 | 1\n+ a b: -[a -[0 b]]\n* a b: (=[b 0]) 0 | +[a *[a -[b 1]]]\n! n: (=[n 1]) 1 | *[n ![-[n 1]]]\nprint[![4]]";
+    var result = interp.evaluate(program);
+    console.log(program);
+    console.log(JSON.stringify(result));
   });
+
 });
 
 
