@@ -1,0 +1,3 @@
+Install node: http://nodejs.org
+Install jasmine-node: npm install -g jasmine-node
+Install pegjs: npm install -g pegjs
