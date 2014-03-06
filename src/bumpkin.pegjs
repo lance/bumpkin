@@ -1,10 +1,3 @@
-{
-  var debug = false;
-  function log(msg) {
-    if (debug) { console.log(JSON.stringify(msg)); }
-  }
-}
-
 Start 
   = Program
 
@@ -21,55 +14,29 @@ Expression
   = Integer / Conditional / Builtin / FunctionDef / FunctionCall
 
 Conditional
-  = OpenParens WhiteSpace*
-    expr:Expression WhiteSpace*
-    CloseParens WhiteSpace*
-    t:Expression WhiteSpace*
-    Else WhiteSpace*
+  = lparen
+    expr:Expression
+    rparen
+    t:Expression ws*
+    Else ws*
     f:Expression
   {
-    var c = {
+    return {
       type: 'Conditional',
       expr: expr,
       t: t,
       f: f
     }
-    log(c);
-    return c;
   }
 
 Builtin = Print / Minus
 
-ParameterList
-  = WhiteSpace*
-    LeftBracket
-    parameters:Parameter*
-    RightBracket
-    WhiteSpace*
-  {
-    log({ParameterList: parameters});
-    return {
-      type: 'ParameterList',
-      value: parameters
-    }
-  }
-
 Parameter
-  = WhiteSpace* 
-    value:(Expression / Symbol)
-    WhiteSpace*
-  {
-    log({Parameter: value});
-    return {
-      type: 'Parameter',
-      value: value
-    }
-  }
+  = Expression / Symbol
 
 Print
-  = "print" param:ParameterList
+  = "print" lbr param:Parameter* rbr
   {
-    log("Print");
     return {
       type: 'Builtin',
       name: 'print',
@@ -78,9 +45,8 @@ Print
   }
 
 Minus
-  = "-" params:ParameterList 
+  = "-" lbr params:Parameter* rbr
   {
-    log("Minus");
     return {
       type: 'Builtin',
       name: 'minus',
@@ -89,9 +55,8 @@ Minus
   }
 
 FunctionCall
-  = symbol:Symbol params:ParameterList
+  = symbol:Symbol lbr params:Parameter* rbr
   {
-    log({FunctionCall: {symbol: symbol, params: params}});
     return {
       type: 'FunctionCall',
       name: symbol,
@@ -100,62 +65,40 @@ FunctionCall
   }
 
 Symbol
-  = WhiteSpace* symbol:$(SymbolChars+) WhiteSpace*
+  = ws* symbol:$(SymbolChars+) ws*
     {
-      log({symbol: symbol});
-      return {
-        type: 'Symbol',
-        value: symbol
-      }
+      return symbol;
     }
-
-DeclaredParameters
-  = parameters:Symbol*
-  {
-    log({DeclaredParameters: parameters});
-    return {
-      type: 'DeclaredParameters',
-      value: parameters
-    }
-  }
 
 FunctionDef
- = name:Symbol parameters:DeclaredParameters Colon WhiteSpace* body:Expression
+ = name:Symbol parameters:Symbol* Colon body:Expression
    {
-     var f = {
+     return {
        type: 'Function',
        name: name,
        params: parameters,
        body: body
      }
-     log({FunctionDef: f});
-     return f;
    }
 
-Integer "integer"
-  = digits:Digit+
+Integer
+  = ws* digits:Digit+ ws*
     { 
       return { type: 'Integer', value: parseInt(digits.join(""), 10) }
     }
 
 Comment
   = line:$("`" [^\n\r]*) LineTerminator?
-    {
-      log({Comment: line});
-      return {
-        type: 'Comment',
-        value: line
-      }
-    }
+    { return null }
 
-WhiteSpace     "whitespace" = w:[ \t]
-OpenParens     = "(" { log("OpenParens"); }
-CloseParens    = ")" { log("CloseParens"); }
-LeftBracket    = "[" { log("LeftBracket"); }
-RightBracket   = "]" { log("RightBracket"); }
-Else           = "|" { log("Else"); }
-Colon          = ":" { log("Colon"); }
-Digit          = [0-9]
-LineTerminator = [\n\r\u2028\u2029]
-SymbolChars    = [a-zA-Z\=+*!]
+ws "whitespace" = w:[ \t]
+lparen          = ws* "(" ws*
+rparen          = ws* ")" ws*
+lbr             = ws* "[" ws*
+rbr             = ws* "]" ws*
+Else            = ws* "|" ws*
+Colon           = ws* ":" ws*
+Digit           = [0-9]
+LineTerminator  = [\n\r\u2028\u2029]
+SymbolChars     = [a-zA-Z\=+*!]
 
