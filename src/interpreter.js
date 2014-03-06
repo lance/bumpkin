@@ -8,6 +8,7 @@ var builtin = function(node) {
   switch(node.name) {
     case 'print': 
       var val = internalEval(params[0]);
+      console.log(val);
       return(val);
     case 'minus':
       var x = internalEval(params[0]);
@@ -46,9 +47,9 @@ var callFunction = function(func) {
       }
     });
     var x = internalEval(defn.body);
-    console.log("func name " + func.name);
-    console.log("func params " + JSON.stringify(binding));
-    console.log("func result " + x);
+    //console.log("func name " + func.name);
+    //console.log("func params " + JSON.stringify(binding));
+    //console.log("func result " + x);
     return x;
   }
   console.error("No function found named '" + func.name.value + "'");
