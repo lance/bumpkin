@@ -59,7 +59,12 @@ describe("A bumpkin interpreter", function() {
   });
 
   it("should handle multi-line programs", function() {
-    var result = interp.evaluate("`here is a comment\n(-[1 1]) 1 | -[4 1]\n`and another comment\n-[100 50]\n`and yet another comment");
+    var result = interp.evaluate(
+      "`here is a comment\n" +
+      "(-[1 1]) 1 | -[4 1]\n`" + 
+      "and another comment\n" + 
+      "-[100 50]\n" +
+      "`and yet another comment");
     expect(result).toBe(50);
   });
 
@@ -76,13 +81,19 @@ describe("A bumpkin interpreter", function() {
   });
 
   it("should handle recursion", function() {
-    var program = "r a: (-[a 1]) r[-[a 1]] | 0\nr[5]";
+    var program = "r a: (-[a 1]) r[-[a 1]] | 0\n" + // a recursive function
+                  "r[5]"; // call it
     var result = interp.evaluate(program);
     expect(result).toBe(0);
   });
 
   it("should handle factorial", function() {
-    var program = "= x y: (-[x y]) 0 | 1\n+ a b: -[a -[0 b]]\n* a b: (=[b 0]) 0 | +[a *[a -[b 1]]]\n! n: (=[n 1]) 1 | *[n ![-[n 1]]]\n![4]";
+    var program = 
+        "= x y: (-[x y]) 0 | 1\n" + // define the = function
+        "+ a b: -[a -[0 b]]\n" + // define the + function
+        "* a b: (=[b 0]) 0 | +[a *[a -[b 1]]]\n" + // define the * function
+        "! n: (=[n 1]) 1 | *[n ![-[n 1]]]\n" + // define the ! function
+        "![4]"; // 4 factorial, please
     var result = interp.evaluate(program);
     expect(result).toBe(24);
   });
